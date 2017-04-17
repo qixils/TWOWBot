@@ -1,2 +1,2 @@
 # TWOWBot
-Discord bot made to host mini-sized TWoW games.
+Discord bot made to host mini-sized TWOW games.
