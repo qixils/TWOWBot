@@ -23,6 +23,7 @@ class Program
 		});
 
 		// char p = '+';
+		var sepchar = Path.DirectorySeparatorChar;
 
 		_client.GetService<CommandService>().CreateCommand("botok") //create command
 		       .Alias("ping", "status") // add some aliases
@@ -32,23 +33,33 @@ class Program
                });
 
 		_client.GetService<CommandService>().CreateCommand("create")
-			   .Do(async e =>
+			   .Do(e =>
 			   {
 			   });
 			
 
 		_client.GetService<CommandService>().CreateGroup("test", cgb =>
 		{
-	    	cgb.CreateCommand("data-save")
+	    	cgb.CreateCommand("save")
 				.Description("Multi-server data test")
 				.Parameter("data", ParameterType.Required)
 				.Do(async e =>
 				{
-				    // e.GetArg("GreetedPerson");
-				    await e.Channel.SendMessage($"data saved");
+					Console.WriteLine($"Starting data save test");
+				var path = $"{Directory.GetCurrentDirectory() + sepchar + e.Server.Id.ToString() + sepchar}";
+                var datafile = $"{path}data.txt";
+				Console.WriteLine($"path: {path} \ndatafile: {datafile}");
+                Directory.CreateDirectory(path);
+			    File.Create(datafile);
+
+					Console.WriteLine($"now going to edit data");
+			    var config = File.ReadAllLines(datafile);
+				config[0] = e.GetArg("data");
+				File.WriteAllText(datafile, String.Join("\n", config));
+				await e.Channel.SendMessage($"data saved");
 				});
 
-			cgb.CreateCommand("data-load")
+			cgb.CreateCommand("load")
 				.Description("Multi-server data test")
 				//.Parameter("data", ParameterType.Required)
 				.Do(async e =>

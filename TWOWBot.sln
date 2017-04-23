@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TWOWBot", "TWOWBot\TWOWBot.csproj", "{EFD4CC36-F61B-432D-9B1B-D03FBAD250D0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "twowbot_dnet1.0", "twowbot_dnet1.0\twowbot_dnet1.0.csproj", "{58F6F4E2-13BF-472D-B9D3-A5F33D879EDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,5 +15,9 @@ Global
 		{EFD4CC36-F61B-432D-9B1B-D03FBAD250D0}.Debug|x86.Build.0 = Debug|x86
 		{EFD4CC36-F61B-432D-9B1B-D03FBAD250D0}.Release|x86.ActiveCfg = Release|x86
 		{EFD4CC36-F61B-432D-9B1B-D03FBAD250D0}.Release|x86.Build.0 = Release|x86
+		{58F6F4E2-13BF-472D-B9D3-A5F33D879EDD}.Debug|x86.ActiveCfg = Debug|x86
+		{58F6F4E2-13BF-472D-B9D3-A5F33D879EDD}.Debug|x86.Build.0 = Debug|x86
+		{58F6F4E2-13BF-472D-B9D3-A5F33D879EDD}.Release|x86.ActiveCfg = Release|x86
+		{58F6F4E2-13BF-472D-B9D3-A5F33D879EDD}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal
