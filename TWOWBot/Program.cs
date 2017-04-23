@@ -3,6 +3,7 @@ using Discord.Commands;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 class Program
 {
@@ -42,20 +43,44 @@ class Program
 		{
 	    	cgb.CreateCommand("save")
 				.Description("Multi-server data test")
-				.Parameter("data", ParameterType.Required)
+				.Parameter("data", ParameterType.Unparsed)
 				.Do(async e =>
 				{
-					Console.WriteLine($"Starting data save test");
-				var path = $"{Directory.GetCurrentDirectory() + sepchar + e.Server.Id.ToString() + sepchar}";
-                var datafile = $"{path}data.txt";
-				Console.WriteLine($"path: {path} \ndatafile: {datafile}");
-                Directory.CreateDirectory(path);
-			    File.Create(datafile);
+				// Console.WriteLine($"Starting data save test | input: {e.GetArg("data")}");
+				var path = $"{Directory.GetCurrentDirectory() + sepchar + e.Server.Id.ToString() + sepchar}"; // get data save directory
+				var datafile = $"{path}data.txt"; // get config file
+				// Console.WriteLine($"path: {path} \ndatafile: {datafile}");
+                Directory.CreateDirectory(path); // create directory
+			    // File.Create(datafile); // create file
 
-					Console.WriteLine($"now going to edit data");
-			    var config = File.ReadAllLines(datafile);
-				config[0] = e.GetArg("data");
-				File.WriteAllText(datafile, String.Join("\n", config));
+                StringBuilder newconfig = new StringBuilder(); // create empty "text file"
+
+					if (File.Exists(datafile))
+					{
+					    // Console.WriteLine($"now going to edit data");
+                        // Console.WriteLine($"file length: {new FileInfo(datafile).Length}");
+				    	if (new FileInfo(datafile).Length >= 2)
+					    {
+					    	// Console.WriteLine($"file was detected as *not* empty");
+					    	string[] config = File.ReadAllLines(datafile); // read all lines of the text file
+                            // Console.WriteLine($"file read successful");
+				    		int linenum = 1;
+						    foreach (String line in config)
+						    {
+						    	if (linenum == 1) { newconfig.Append(e.GetArg("data") + Environment.NewLine); } // replace line 1 of data with custom stuff
+						    	else { newconfig.Append(line + "\r\n"); } // add other lines to file
+						    	linenum++; // increase line number
+						    }
+					    }
+
+					    else { newconfig.Append(e.GetArg("data") + Environment.NewLine); }
+					}
+
+					else { newconfig.Append(e.GetArg("data") + Environment.NewLine); }
+				// Console.WriteLine($"newconfig: {newconfig.ToString()}");
+
+				File.WriteAllText(datafile, newconfig.ToString());
+					// Console.WriteLine($"DATA SAVED WOO");
 				await e.Channel.SendMessage($"data saved");
 				});
 
@@ -64,8 +89,19 @@ class Program
 				//.Parameter("data", ParameterType.Required)
 				.Do(async e =>
 				{
-					string data = "unfinished";
-				    await e.Channel.SendMessage($"saved data: {data}");
+                var path = $"{Directory.GetCurrentDirectory() + sepchar + e.Server.Id.ToString() + sepchar}";
+                var datafile = $"{path}data.txt";
+                Console.WriteLine($"path: {path} \ndatafile: {datafile}");
+                Directory.CreateDirectory(path);
+					if (File.Exists(datafile))
+					{
+						var config = File.ReadAllLines(datafile);
+						await e.Channel.SendMessage($"line 1 data: {config[0]}");
+					}
+					else
+					{
+						await e.Channel.SendMessage($"file doesn't exist");
+					}
 				});
 		});
 
