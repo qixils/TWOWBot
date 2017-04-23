@@ -24,7 +24,8 @@ class Program
 		});
 
 		// char p = '+';
-		var sepchar = Path.DirectorySeparatorChar;
+		// var sepchar = Path.DirectorySeparatorChar;
+		string topic = "Ready to play a Mini TWOW!";
 
 		_client.GetService<CommandService>().CreateCommand("botok") //create command
 		       .Alias("ping", "status") // add some aliases
@@ -33,9 +34,25 @@ class Program
             await e.Channel.SendMessage($"bot is online \ud83d\udc4c");
                });
 
-		_client.GetService<CommandService>().CreateCommand("create")
-			   .Do(e =>
+		_client.GetService<CommandService>().CreateCommand("prepare")
+			   .Do(async e =>
 			   {
+				   User bot = e.Server.GetUser(_client.CurrentUser.Id);
+				   if (bot.GetPermissions(e.Channel).ManageChannel)
+				   {
+					   if (e.User.GetPermissions(e.Channel).ManageChannel)
+					   {
+                           Save("data", e.Channel.Id.ToString(), e.Server.Id, 1);
+					       Save("data", "0", e.Server.Id, 2);
+                           //see README.md's dev notes for data.txt layout
+                           await e.Channel.Edit(e.Channel.Name, $"{topic}\n{e.Channel.Topic}", e.Channel.Position);
+                           await e.Channel.SendMessage($"This channel is now ready to play Mini TWOWs!");
+					   }
+				   }
+				   else
+				   {
+					   await e.Channel.SendMessage($"Please give the bot permissions to manage the channel!");
+				   }
 			   });
 			
 
@@ -46,11 +63,9 @@ class Program
 				.Parameter("data", ParameterType.Unparsed)
 				.Do(async e =>
 				{
-					var result = Save(e.GetArg("data"), e.Server.Id, 1);
-					if (result == true)
-						await e.Channel.SendMessage($"data saved");
-					else
-						await e.Channel.SendMessage($"data failed to save");
+					//Save("data", e.GetArg("data"), e.Server.Id, 1);
+					//await e.Channel.SendMessage($"data saved");
+					await e.Channel.SendMessage($"no");
 				});
 
 			cgb.CreateCommand("load")
@@ -60,20 +75,22 @@ class Program
 				{
 					try
 					{
-                        int i = 0; // line number
-					    bool success = int.TryParse(e.GetArg("line"), out i); // output line number to line number
-						if (success) // check if line number was parsed successfully
-						{
-							string data = Load(e.Server.Id, i); // run Load with required data
-							if (data != null) // check if operation was successful
-								await e.Channel.SendMessage(data); // output line
-							else // if it failed...
-								await e.Channel.SendMessage("file/line didnt exist"); // ...then say it failed
-						}
-						else
-						{
-						    await e.Channel.SendMessage($"failed to parse input ({e.GetArg("line")})"); // input wasn't an int
-						}
+      //                  int i = 0; // line number
+					 //   bool success = int.TryParse(e.GetArg("line"), out i); // output line number to line number
+						//if (success) // check if line number was parsed successfully
+						//{
+						//	string data = Load("data", e.Server.Id, i); // run Load with required data
+						//	if (data != null) // check if operation was successful
+						//		await e.Channel.SendMessage(data); // output line
+						//	else // if it failed...
+						//		await e.Channel.SendMessage("file/line didnt exist"); // ...then say it failed
+						//}
+						//else
+						//{
+						//    await e.Channel.SendMessage($"failed to parse input ({e.GetArg("line")})"); // input wasn't an int
+						//}
+
+						await e.Channel.SendMessage($"no");
 					}
 					catch (Exception error)
 					{
@@ -92,11 +109,11 @@ class Program
 			await _client.Connect(token, TokenType.Bot);
 		});
 	}
-	public bool Save(string data, ulong server, int linenumber)
+	public void Save(string filename, string data, ulong server, int linenumber)
 	{
         var sepchar = Path.DirectorySeparatorChar; // get operating system's directory seperation character
         var path = $"{Directory.GetCurrentDirectory() + sepchar + server.ToString() + sepchar}"; // get data save directory
-        var datafile = $"{path}data.txt"; // get config file
+        var datafile = $"{path + filename}data.txt"; // get config file
         Directory.CreateDirectory(path); // create directory
 
         StringBuilder newconfig = new StringBuilder(); // create empty "text file" in memory
@@ -121,14 +138,13 @@ class Program
 		else { newconfig.Append(data + Environment.NewLine); } // file doesn't exist so create it with input
 
 		File.WriteAllText(datafile, newconfig.ToString()); // save changes to file
-		return true; // signify it worked
 	}
-	public string Load(ulong server, int line)
+	public string Load(string filename, ulong server, int line)
 	{
 		line -= 1;
 		var sepchar = Path.DirectorySeparatorChar; // Grab the current operating system's seperation char. (eg. windows: \, linux: /)
         var path = $"{Directory.GetCurrentDirectory() + sepchar + server.ToString() + sepchar}"; // get directory of data file
-        var datafile = $"{path}data.txt"; // get data file
+        var datafile = $"{path + filename}.txt"; // get data file
         Directory.CreateDirectory(path); // create directory if it doesn't exist
 		if (File.Exists(datafile)) // check if file exists
 		{
