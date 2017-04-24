@@ -23,7 +23,7 @@ class Program
 			x.HelpMode = HelpMode.Public;
 		});
 
-		// char p = '+';
+		char p = '+';
 		// var sepchar = Path.DirectorySeparatorChar;
 		string topic = "Ready to play a Mini TWOW!";
 
@@ -35,6 +35,8 @@ class Program
                });
 
 		_client.GetService<CommandService>().CreateCommand("prepare")
+		       .Alias("setup")
+			   .Description("Prepares the current channel for a Mini TWOW.")
 			   .Do(async e =>
 			   {
 				   User bot = e.Server.GetUser(_client.CurrentUser.Id);
@@ -44,9 +46,15 @@ class Program
 					   {
                            Save("data", e.Channel.Id.ToString(), e.Server.Id, 1);
 					       Save("data", "0", e.Server.Id, 2);
+						   Save("data", "null", e.Server.Id, 3);
+						   Save("contestants", "null", e.Server.Id, 1);
                            //see README.md's dev notes for data.txt layout
                            await e.Channel.Edit(e.Channel.Name, $"{topic}\n{e.Channel.Topic}", e.Channel.Position);
                            await e.Channel.SendMessage($"This channel is now ready to play Mini TWOWs!");
+					   }
+					   else
+					   {
+						   await e.Channel.SendMessage($"You must have the `MANAGE_CHANNELS` permission to use this command!");
 					   }
 				   }
 				   else
@@ -55,6 +63,57 @@ class Program
 				   }
 			   });
 			
+		_client.GetService<CommandService>().CreateCommand("create")
+		       .Alias("make")
+			   .Description("Creates a Mini TWOW game.")
+			   .Do(async e =>
+			   {
+				   ulong mtChannel = 000000000000000000;
+				   string data = Load("data", e.Server.Id, 1);
+				   bool parseResult = ulong.TryParse(data, out mtChannel);
+				   if(parseResult)
+				   {
+					   if(e.Channel.Id == mtChannel && e.Server.GetUser(_client.CurrentUser.Id).GetPermissions(e.Channel).SendMessages)
+					   {
+						   int gamestatus = 100;
+						   data = Load("date", e.Server.Id, 2);
+						   parseResult = int.TryParse(data, out gamestatus);
+						   if(parseResult)
+						   {
+							   if(gamestatus == 0)
+							   {
+								   Save("data", "1", e.Server.Id, 2);
+								   Save("data", e.User.Id.ToString(), e.Server.Id, 3);
+								   Clear("contestants", e.Server.Id);
+								   await e.Channel.SendMessage($"You have successfully created a Mini TWOW game! Run `{p}join` to join the game, and run `{p}start` when you're ready to start the game.");
+							   }
+							   else
+							   {
+								   await e.Channel.SendMessage($"A game is already running. Please wait for it to finish!");
+							   }
+						   }
+						   else
+						   {
+							   await e.Channel.SendMessage($"The data file has been corrupted. Please ask a user with `MANAGE_CHANNELS` perms to do `{p}prepare`.");
+						   }
+					   }
+					   else
+					   {
+						   await e.Channel.SendMessage($"Please go to <#{mtChannel}> to start a Mini TWOW!");
+					   }
+				   }
+				   else
+				   {
+					   await e.Channel.SendMessage($"Please get a user with `MANAGE_CHANNELS` permissions to run the `{p}prepare` command before starting a Mini TWOW.");
+				   }
+			   });
+
+		_client.GetService<CommandService>().CreateCommand("join")
+		       .Description("Joins an active Mini TWOW game.")
+			   .Do(async e =>
+			   {
+				   await e.Channel.SendMessage($"no");
+			   });
 
 		_client.GetService<CommandService>().CreateGroup("test", cgb =>
 		{
@@ -158,5 +217,13 @@ class Program
 		{
 			return null; // can't load if file doesn't exist
 		}
+	}
+	public void Clear(string filename, ulong server)
+	{
+        var sepchar = Path.DirectorySeparatorChar; // get operating system's directory seperation character
+        var path = $"{Directory.GetCurrentDirectory() + sepchar + server.ToString() + sepchar}"; // get data save directory
+        var datafile = $"{path + filename}data.txt"; // get config file
+        Directory.CreateDirectory(path); // create directory
+		File.WriteAllText(datafile, null);
 	}
 }
