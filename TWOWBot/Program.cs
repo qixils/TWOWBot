@@ -4,14 +4,16 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Diagnostics;
+using System.Threading;
 
 class Program
 {
-	static void Main(string[] args) => new Program().Start();
+    static void Main(string[] args) => new Program().Start();
 
 	private DiscordClient _client;
 
-	public void Start()
+    public void Start()
 	{
 		_client = new DiscordClient();
 
@@ -226,4 +228,28 @@ class Program
         Directory.CreateDirectory(path); // create directory
 		File.WriteAllText(datafile, null);
 	}
+    public static void VoteCount(ulong server, string twow, int elim, int prize) {//framework is here, modify as needed
+        string myPythonApp = "../../voteCounter.py";
+        string python = @"Python path here";
+
+
+
+        ProcessStartInfo myProcessStartInfo = new ProcessStartInfo(python);
+ 
+        myProcessStartInfo.UseShellExecute = false;
+        myProcessStartInfo.RedirectStandardOutput = true;
+
+        myProcessStartInfo.Arguments = myPythonApp + " "+server+"/"+twow+" -e "+elim+" -t "+prize;
+
+        Process myProcess = new Process();
+        myProcess.StartInfo = myProcessStartInfo;
+        myProcess.Start();
+
+        /*StreamReader myStreamReader = myProcess.StandardOutput;
+        string myString = myStreamReader.ReadLine();*/
+        myProcess.WaitForExit();
+        myProcess.Close();
+
+        // write the output we got from python app 
+    }
 }
