@@ -5,7 +5,6 @@ using System;
 using System.Text;
 using System.Diagnostics;
 using System.Configuration;
-using System.Threading;
 
 class Program
 {
@@ -243,11 +242,29 @@ class Program
         Process myProcess = new Process();
         myProcess.StartInfo = myProcessStartInfo;
         myProcess.Start();
-
+       
         
         myProcess.WaitForExit();
         myProcess.Close();
+    }
+    public static void GenerateBooksona(ulong server, string name) {
+        string bookMaker = ConfigurationManager.AppSettings.Get("BookMaker");//change these settings in App.config
+        string python = ConfigurationManager.AppSettings.Get("PyPath");
 
 
+        ProcessStartInfo myProcessStartInfo = new ProcessStartInfo(python);
+
+        myProcessStartInfo.UseShellExecute = false;
+        myProcessStartInfo.RedirectStandardOutput = true;
+
+        myProcessStartInfo.Arguments = bookMaker + " " + server + "/booksonas " + name;
+
+        Process myProcess = new Process();
+        myProcess.StartInfo = myProcessStartInfo;
+        myProcess.Start();
+
+
+        myProcess.WaitForExit();
+        myProcess.Close();
     }
 }
