@@ -5,6 +5,7 @@ using System;
 using System.Text;
 using System.Diagnostics;
 using System.Configuration;
+using Cleverbot.Net;
 
 
 class Program
@@ -16,8 +17,9 @@ class Program
     public void Start()
 	{
 		_client = new DiscordClient();
+        
 
-		_client.Log.Message += (s, e) => Console.WriteLine($"[{e.Severity} - {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second}] {e.Source}: {e.Message}");
+        _client.Log.Message += (s, e) => Console.WriteLine($"[{e.Severity} - {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second}] {e.Source}: {e.Message}");
 
 		_client.UsingCommands(x => {
 			x.PrefixChar = '+';
@@ -117,7 +119,23 @@ class Program
 				   await e.Channel.SendMessage($"no");
 			   });
 
-		_client.GetService<CommandService>().CreateGroup("test", cgb =>
+        _client.GetService<CommandService>().CreateCommand("chat")
+               .Description("Talk with the bot")
+               .Parameter("sentence", ParameterType.Multiple)
+               .Do(async e =>
+               {
+                   try
+                   {
+                       string ChatUser = ConfigurationManager.AppSettings.Get("ChatUser");
+                       string ChatKey = ConfigurationManager.AppSettings.Get("ChatKey");
+                       CleverbotSession session = await CleverbotSession.NewSessionAsync(ChatUser, ChatKey);
+                       string response = await session.SendAsync(e.GetArg("sentence"));
+                       await e.Channel.SendMessage(response);
+                   }
+                   catch (Exception) {}
+               });
+
+        _client.GetService<CommandService>().CreateGroup("test", cgb =>
 		{
 	    	cgb.CreateCommand("save")
 				.Description("Multi-server data test")
@@ -268,4 +286,5 @@ class Program
         myProcess.WaitForExit();
         myProcess.Close();
     }
+ 
 }
