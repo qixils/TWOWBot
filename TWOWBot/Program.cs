@@ -2,9 +2,9 @@
 using Discord.Commands;
 using System.IO;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using System.Configuration;
 using System.Threading;
 
 class Program
@@ -229,9 +229,8 @@ class Program
 		File.WriteAllText(datafile, null);
 	}
     public static void VoteCount(ulong server, string twow, int elim, int prize) {//framework is here, modify as needed
-        string myPythonApp = "../../voteCounter.py";
-        string python = @"Python path here";
-
+        string counter = ConfigurationManager.AppSettings.Get("Counter");//change these settings in App.config
+        string python = ConfigurationManager.AppSettings.Get("PyPath");
 
 
         ProcessStartInfo myProcessStartInfo = new ProcessStartInfo(python);
@@ -239,17 +238,16 @@ class Program
         myProcessStartInfo.UseShellExecute = false;
         myProcessStartInfo.RedirectStandardOutput = true;
 
-        myProcessStartInfo.Arguments = myPythonApp + " "+server+"/"+twow+" -e "+elim+" -t "+prize;
+        myProcessStartInfo.Arguments = counter + " "+server+"/"+twow+" -e "+elim+" -t "+prize;
 
         Process myProcess = new Process();
         myProcess.StartInfo = myProcessStartInfo;
         myProcess.Start();
 
-        /*StreamReader myStreamReader = myProcess.StandardOutput;
-        string myString = myStreamReader.ReadLine();*/
+        
         myProcess.WaitForExit();
         myProcess.Close();
 
-        // write the output we got from python app 
+
     }
 }
