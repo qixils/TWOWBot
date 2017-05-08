@@ -2,6 +2,7 @@
 using Discord.Commands;
 using System.IO;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Configuration;
@@ -17,7 +18,6 @@ class Program
     public void Start()
 	{
 		_client = new DiscordClient();
-        
 
         _client.Log.Message += (s, e) => Console.WriteLine($"[{e.Severity} - {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second}] {e.Source}: {e.Message}");
 
@@ -53,7 +53,7 @@ class Program
 						   Save("data", "null", e.Server.Id, 3);
 						   Save("contestants", "null", e.Server.Id, 1);
                            //see README.md's dev notes for data.txt layout
-                           await e.Channel.Edit(e.Channel.Name, $"{topic}\n{e.Channel.Topic}", e.Channel.Position);
+                           await e.Channel.Edit(e.Channel.Name, $"{topic}\n{e.Channel.Topic.Replace($"{topic}", "")}", e.Channel.Position);
                            await e.Channel.SendMessage($"This channel is now ready to play Mini TWOWs!");
 					   }
 					   else
@@ -80,9 +80,9 @@ class Program
 					   if(e.Channel.Id == mtChannel && e.Server.GetUser(_client.CurrentUser.Id).GetPermissions(e.Channel).SendMessages)
 					   {
 						   int gamestatus = 100;
-						   data = Load("date", e.Server.Id, 2);
-						   parseResult = int.TryParse(data, out gamestatus);
-						   if(parseResult)
+						   data = Load("data", e.Server.Id, 2);
+						   bool newParseResult = int.TryParse(data, out gamestatus);
+						   if(newParseResult)
 						   {
 							   if(gamestatus == 0)
 							   {
@@ -192,7 +192,7 @@ class Program
 	{
         var sepchar = Path.DirectorySeparatorChar; // get operating system's directory seperation character
         var path = $"{Directory.GetCurrentDirectory() + sepchar + server.ToString() + sepchar}"; // get data save directory
-        var datafile = $"{path + filename}data.txt"; // get config file
+        var datafile = $"{path + filename}.txt"; // get config file
         Directory.CreateDirectory(path); // create directory
 
         StringBuilder newconfig = new StringBuilder(); // create empty "text file" in memory
@@ -206,9 +206,10 @@ class Program
 				foreach (String line in config)
 				{
 					if (currentline == linenumber) { newconfig.Append(data + Environment.NewLine); } // replace line 1 of data with custom stuff
-					else { newconfig.Append(line + "\r\n"); } // add other lines to file
+					else { newconfig.Append(line + Environment.NewLine); } // add other lines to file
 					currentline++; // increase line number
 				}
+				if(linenumber - config.Length == 1) { newconfig.Append(data + Environment.NewLine); }
 			}
 
 			else { newconfig.Append(data + Environment.NewLine); } // file has nothing so just add data to first line
