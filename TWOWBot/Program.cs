@@ -154,20 +154,20 @@ class Program
 				{
 					try
 					{
-      //                  int i = 0; // line number
-					 //   bool success = int.TryParse(e.GetArg("line"), out i); // output line number to line number
-						//if (success) // check if line number was parsed successfully
-						//{
-						//	string data = Load("data", e.Server.Id, i); // run Load with required data
-						//	if (data != null) // check if operation was successful
-						//		await e.Channel.SendMessage(data); // output line
-						//	else // if it failed...
-						//		await e.Channel.SendMessage("file/line didnt exist"); // ...then say it failed
-						//}
-						//else
-						//{
-						//    await e.Channel.SendMessage($"failed to parse input ({e.GetArg("line")})"); // input wasn't an int
-						//}
+                         /* int i = 0; // line number
+					    bool success = int.TryParse(e.GetArg("line"), out i); // output line number to line number
+						if (success) // check if line number was parsed successfully
+						{
+							string data = Load("data", e.Server.Id, i); // run Load with required data
+							if (data != null) // check if operation was successful
+							await e.Channel.SendMessage(data); // output line
+						else if it failed...
+					    		await e.Channel.SendMessage("file/line didnt exist"); // ...then say it failed
+						}
+						else
+						{
+						    await e.Channel.SendMessage($"failed to parse input ({e.GetArg("line")})"); // input wasn't an int
+						}*/
 
 						await e.Channel.SendMessage($"no");
 					}
