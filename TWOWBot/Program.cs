@@ -21,7 +21,9 @@ class Program
 
         _client.Log.Message += (s, e) => Console.WriteLine($"[{e.Severity} - {DateTime.UtcNow.Hour}:{DateTime.UtcNow.Minute}:{DateTime.UtcNow.Second}] {e.Source}: {e.Message}");
 
-		_client.UsingCommands(x => {
+        CleverbotSession session = null;
+
+        _client.UsingCommands(x => {
 			x.PrefixChar = '+';
 			x.AllowMentionPrefix = true;
 			x.HelpMode = HelpMode.Public;
@@ -126,9 +128,11 @@ class Program
                {
                    try
                    {
-                       string ChatUser = ConfigurationManager.AppSettings.Get("ChatUser");
-                       string ChatKey = ConfigurationManager.AppSettings.Get("ChatKey");
-                       CleverbotSession session = await CleverbotSession.NewSessionAsync(ChatUser, ChatKey);
+                       if (session == null) {
+                           string ChatUser = ConfigurationManager.AppSettings.Get("ChatUser");
+                           string ChatKey = ConfigurationManager.AppSettings.Get("ChatKey");
+                           session = await CleverbotSession.NewSessionAsync(ChatUser, ChatKey);
+                       }
                        string response = await session.SendAsync(e.GetArg("sentence"));
                        await e.Channel.SendMessage(response);
                    }
