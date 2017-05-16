@@ -40,6 +40,14 @@ class Program
             await e.Channel.SendMessage($"bot is online \ud83d\udc4c");
                });
 
+		_client.GetService<CommandService>().CreateCommand("restart") //create command
+		       .Alias("shutdown", "kill", "quit", "stop") // add some aliases
+		       .Description("Restarts the bot. (Developer only)") //add description, it will be shown when +help is used
+               .Do(e => {
+			if(e.User.Id == 140564059417346049 || e.User.Id == 240995021208289280 || e.User.Id == 108315283445280768)
+				Environment.Exit(0);
+               });
+
 		_client.GetService<CommandService>().CreateCommand("prepare")
 		       .Alias("setup")
 			   .Description("Prepares the current channel for a Mini TWOW.")
@@ -123,20 +131,21 @@ class Program
 
         _client.GetService<CommandService>().CreateCommand("chat")
                .Description("Talk with the bot")
-               .Parameter("sentence", ParameterType.Multiple)
+               .Parameter("sentence", ParameterType.Unparsed)
                .Do(async e =>
                {
-                   try
-                   {
-                       if (session == null) {
-                           string ChatUser = File.ReadAllLines("logins.txt")[1];
-                           string ChatKey = File.ReadAllLines("logins.txt")[2];
-                           session = await CleverbotSession.NewSessionAsync(ChatUser, ChatKey);
-                       }
-                       string response = await session.SendAsync(e.GetArg("sentence"));
-                       await e.Channel.SendMessage(response);
-                   }
-                   catch (Exception) {}
+				   try
+				   {
+					   if (session == null)
+					   {
+						   string ChatUser = File.ReadAllLines("logins.txt")[1];
+						   string ChatKey = File.ReadAllLines("logins.txt")[2];
+						   session = await CleverbotSession.NewSessionAsync(ChatUser, ChatKey);
+					   }
+					   string response = await session.SendAsync(e.GetArg("sentence"));
+					   await e.Channel.SendMessage(response);
+				   }
+			catch (Exception error) { Console.WriteLine($"[ERROR] An issue occured while trying to +chat: {error.ToString()}");}
                });
 
         _client.GetService<CommandService>().CreateGroup("test", cgb =>
