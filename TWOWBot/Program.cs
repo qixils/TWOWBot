@@ -129,8 +129,8 @@ class Program
                    try
                    {
                        if (session == null) {
-                           string ChatUser = ConfigurationManager.AppSettings.Get("ChatUser");
-                           string ChatKey = ConfigurationManager.AppSettings.Get("ChatKey");
+                           string ChatUser = File.ReadAllLines("logins.txt")[1];
+                           string ChatKey = File.ReadAllLines("logins.txt")[2];
                            session = await CleverbotSession.NewSessionAsync(ChatUser, ChatKey);
                        }
                        string response = await session.SendAsync(e.GetArg("sentence"));
@@ -188,7 +188,7 @@ class Program
 		};
 
 		_client.ExecuteAndWait(async () => {
-			string token = File.ReadAllLines("token.txt")[0];
+            string token = File.ReadAllLines("logins.txt")[0];
 			await _client.Connect(token, TokenType.Bot);
 		});
 	}
