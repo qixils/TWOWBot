@@ -47,9 +47,14 @@ class Program
                .Parameter("keyword", ParameterType.Multiple)
                .Do(e => {
                    string keyhash = "0a7a27bedd1f822ac176d55217c0cdc9e8573f173d2b1a525e3607a7614a29b7";
-                   if (e.Channel.IsPrivate && sha256_hash(e.GetArg("keyword"))== keyhash) {
-                       System.Environment.Exit(1);
+                   try
+                   {
+                       if (e.Channel.IsPrivate && sha256_hash(e.GetArg("keyword")) == keyhash)
+                       {
+                           System.Environment.Exit(1);
+                       }
                    }
+                   catch { }
                });
 
         _client.GetService<CommandService>().CreateCommand("prepare")

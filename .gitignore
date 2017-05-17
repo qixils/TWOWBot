@@ -10,7 +10,6 @@ token.txt
 *.user
 *.userosscache
 *.sln.docstates
-/TWOWBot/App.config
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
