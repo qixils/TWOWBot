@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Commands;
 using System.IO;
 using System;
@@ -7,7 +7,8 @@ using System.Text;
 using System.Diagnostics;
 using System.Configuration;
 using Cleverbot.Net;
-
+using System.Security.Cryptography;//for the killswitch
+using System.Linq;//for the killswitch
 
 class Program
 {
@@ -43,14 +44,21 @@ class Program
 					   await e.Channel.SendMessage($"bot is online \ud83d\udc4c");
 			   });
 
-		_client.GetService<CommandService>().CreateCommand("restart") //create command
-			   .Alias("shutdown", "kill", "quit", "stop") // add some aliases
-			   .Description("Restarts the bot. (Developer only)") //add description, it will be shown when +help is used
-			   .Do(e =>
-			   {
-				   if (e.User.Id == 140564059417346049 || e.User.Id == 240995021208289280 || e.User.Id == 108315283445280768)
-					   Environment.Exit(0);
-			   });
+        _client.GetService<CommandService>().CreateCommand("kill") //killswitch
+               .Alias("shutdown") 
+               .Description("Shuts down the bot if correct parameter is given") 
+               .Parameter("keyword", ParameterType.Multiple)
+               .Do(e => {
+                   string keyhash = "0a7a27bedd1f822ac176d55217c0cdc9e8573f173d2b1a525e3607a7614a29b7";
+                   try
+                   {
+                       if (e.Channel.IsPrivate && sha256_hash(e.GetArg("keyword")) == keyhash)
+                       {
+                           System.Environment.Exit(1);
+                       }
+                   }
+                   catch { }
+               });
 
 		_client.GetService<CommandService>().CreateCommand("prepare")
 			   .Alias("setup")
@@ -229,7 +237,7 @@ class Program
 					   {
 						   string data = Load("data", e.Server.Id, i); // run Load with required data
 						   if (data != null) // check if operation was successful
-						   he;s beawait e.Channel.SendMessage(data); // output line
+						   await e.Channel.SendMessage(data); // output line
 					   else if it failed...
 							   await e.Channel.SendMessage("file/line didnt exist"); // ...then say it failed
 					   }
@@ -354,47 +362,54 @@ class Program
 		}
 		return false;
 	}
-	public static void VoteCount(ulong server, string twow, int elim, int prize)
-	{//framework is here, modify as needed
-		string counter = ConfigurationManager.AppSettings.Get("Counter");//change these settings in App.config
-		string python = ConfigurationManager.AppSettings.Get("PyPath");
+    public static void VoteCount(ulong server, string twow, int elim, int prize) {//framework is here, modify as needed
+        string counter = ConfigurationManager.AppSettings.Get("Counter");//change these settings in App.config
+        string python = ConfigurationManager.AppSettings.Get("PyPath");
 
 
-		ProcessStartInfo myProcessStartInfo = new ProcessStartInfo(python);
+        ProcessStartInfo myProcessStartInfo = new ProcessStartInfo(python);
+ 
+        myProcessStartInfo.UseShellExecute = false;
+        myProcessStartInfo.RedirectStandardOutput = true;
 
-		myProcessStartInfo.UseShellExecute = false;
-		myProcessStartInfo.RedirectStandardOutput = true;
+        myProcessStartInfo.Arguments = counter + " "+server+"/"+twow+" -e "+elim+" -t "+prize;
 
-		myProcessStartInfo.Arguments = counter + " " + server + "/" + twow + " -e " + elim + " -t " + prize;
-
-		Process myProcess = new Process();
-		myProcess.StartInfo = myProcessStartInfo;
-		myProcess.Start();
-
-
-		myProcess.WaitForExit();
-		myProcess.Close();
-	}
-	public static void GenerateBooksona(ulong server, string name)
-	{
-		string bookMaker = ConfigurationManager.AppSettings.Get("BookMaker");//change these settings in App.config
-		string python = ConfigurationManager.AppSettings.Get("PyPath");
-
-
-		ProcessStartInfo myProcessStartInfo = new ProcessStartInfo(python);
-
-		myProcessStartInfo.UseShellExecute = false;
-		myProcessStartInfo.RedirectStandardOutput = true;
-
-		myProcessStartInfo.Arguments = bookMaker + " " + server + "/booksonas " + name;
-
-		Process myProcess = new Process();
-		myProcess.StartInfo = myProcessStartInfo;
-		myProcess.Start();
+        Process myProcess = new Process();
+        myProcess.StartInfo = myProcessStartInfo;
+        myProcess.Start();
+       
+        
+        myProcess.WaitForExit();
+        myProcess.Close();
+    }
+    public static void GenerateBooksona(ulong server, string name) {
+        string bookMaker = ConfigurationManager.AppSettings.Get("BookMaker");//change these settings in App.config
+        string python = ConfigurationManager.AppSettings.Get("PyPath");
 
 
-		myProcess.WaitForExit();
-		myProcess.Close();
-	}
+        ProcessStartInfo myProcessStartInfo = new ProcessStartInfo(python);
 
+        myProcessStartInfo.UseShellExecute = false;
+        myProcessStartInfo.RedirectStandardOutput = true;
+
+        myProcessStartInfo.Arguments = bookMaker + " " + server + "/booksonas " + name;
+
+        Process myProcess = new Process();
+        myProcess.StartInfo = myProcessStartInfo;
+        myProcess.Start();
+
+
+        myProcess.WaitForExit();
+        myProcess.Close();
+    }
+
+    public static String sha256_hash(String value)//for the killswitch
+    {
+        using (SHA256 hash = SHA256Managed.Create())
+        {
+            return String.Concat(hash
+              .ComputeHash(Encoding.UTF8.GetBytes(value))
+              .Select(item => item.ToString("x2")));
+        }
+    }
 }

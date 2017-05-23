@@ -11,7 +11,6 @@ logins.txt
 *.user
 *.userosscache
 *.sln.docstates
-TWOWBot/App.config
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -290,3 +289,4 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+TWOWBot/App.config

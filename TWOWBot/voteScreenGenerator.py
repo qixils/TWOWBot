@@ -1,7 +1,9 @@
-from PIL import Image, ImageDraw, ImageFont
 import random, argparse, re, os, textwrap, json, csv
+from PIL import Image, ImageDraw, ImageFont
+from textTools import wrap_text
 
-arial = ImageFont.truetype('./resources/arial.ttf',30)
+#font change if needed
+font = ImageFont.truetype('./resources/arial.ttf',30)
 
 def parse_args(keylist):
 	parser = argparse.ArgumentParser()
@@ -12,7 +14,7 @@ def parse_args(keylist):
 	its=int(args.iterations)
 	
 	submissions = []
-	with open('./{}/responses.csv'.format(path),'r') as csvfile:#read responses
+	with open('./twows/{}/responses.csv'.format(path),'r') as csvfile:#read responses
 		reader = csv.reader(csvfile,delimiter=',', quotechar='"')
 		for row in reader:
 			submissions.append(row[1])
@@ -33,10 +35,10 @@ def create_random_order(submissions,its,submissionCount):
 	return voteList
 
 		
-def wrap_text(text,width):
+'''def wrap_text(text,width):
 	lines = textwrap.wrap(text,width)
 	new_text='\n'.join(lines)
-	return new_text
+	return new_text'''
 	
 def count_words(text):
 	indivWords = re.sub('/[^a-zA-Z0-9 ]/','',text).split(' ')#removes non alphanumeric and space
@@ -50,7 +52,7 @@ def count_words(text):
 def draw_screens(keylist,path,its,keyorder,voteList,submissionCount,submissions):
 	screenDict = {}
 	voteNumber = 0
-	text_writer = open('./'+path+'/ballots.txt','w')
+	text_writer = open('./twows/{}/ballots.txt'.format(path),'w')
 	for iteration in range(its):
 
 		base = Image.open('./resources/base.png').convert('RGB')
@@ -58,8 +60,8 @@ def draw_screens(keylist,path,its,keyorder,voteList,submissionCount,submissions)
 		existingEntries = []
 		
 		word = keylist[keyorder[iteration]].upper()
-		w = drawer.textsize(word,arial)[0]
-		drawer.text((1360-int(w/2), 30), word, font=arial, fill="black")
+		w = drawer.textsize(word,font)[0]
+		drawer.text((1360-int(w/2), 30), word, font=font, fill="black")
 		
 		text_writer.write(word+'\n\n')
 		
@@ -72,16 +74,16 @@ def draw_screens(keylist,path,its,keyorder,voteList,submissionCount,submissions)
 				voteList[int(voteNumber/submissionCount)].append(submissionNumber)
 				submissionNumber = voteList[int(voteNumber/submissionCount)][voteNumber%submissionCount]
 				
-			response = wrap_text(submissions[submissionNumber],85)
-			drawer.text((100,71*i+78-drawer.textsize(response,arial)[1]/2), response, font=arial, fill=(0,0,0))
-			distance = 130+drawer.textsize(response,arial)[0]
+			response = wrap_text(submissions[submissionNumber],1100,font,drawer)
+			drawer.text((100,71*i+60-drawer.textsize(response,font)[1]/2), response, font=font, fill=(0,0,0))
+			distance = 130+drawer.textsize(response,font)[0]
 			
 			wordCount = count_words(response)
 					
 			if wordCount >10:
-				drawer.text((distance,71*i+60), str(wordCount), font=arial, fill=(255,0,0))#blue
+				drawer.text((distance,int(71.5*i)+42), str(wordCount), font=font, fill=(255,0,0))#blue
 			else:
-				drawer.text((distance,71*i+60), str(wordCount), font=arial, fill=(30,30,255))#red
+				drawer.text((distance,int(71.5*i)+42), str(wordCount), font=font, fill=(30,30,255))#red
 			
 			existingEntries.append(submissionNumber)
 			ballot_line = ':regional_indicator_{}: {} ({})\n'.format(chr(i+97),submissions[submissionNumber],wordCount)
@@ -90,10 +92,10 @@ def draw_screens(keylist,path,its,keyorder,voteList,submissionCount,submissions)
 			voteNumber+=1
 			
 		screenDict[word]=list(existingEntries)
-		base.save('./'+path+'/voteScreens/'+str(iteration)+'.png')
+		base.save('./twows/{}/voteScreens/{}.png'.format(path,iteration))
 		text_writer.write('\n\n\n\n\n')
 		
-	open('./'+path+'/dict.json','w').write(json.dumps(screenDict))
+	open('./twows/{}/dict.json'.format(path),'w').write(json.dumps(screenDict))
 	
 	
 def main():
@@ -101,7 +103,7 @@ def main():
 	path,its,submissions,keyorder,submissionCount = parse_args(keylist)
 	voteList = create_random_order(submissions,its,submissionCount)
 
-	os.makedirs('./'+path+'/voteScreens', exist_ok=True)
+	os.makedirs('./twows/{}/voteScreens'.format(path), exist_ok=True)
 
 	draw_screens(keylist,path,its,keyorder,voteList,submissionCount,submissions)
 	
