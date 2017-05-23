@@ -1,8 +1,11 @@
 language: csharp
-mono:
-  - latest
-  - 4.4.2
 solution: TWOWBot.sln
-install:
+before_install:
   - touch TWOWBot/logins.txt
-  - nuget restore gamebot.sln
+
+matrix:
+  include:
+    - dotnet: 1.0.1
+      mono: none
+      dist: trusty
+    - mono: 4.4.2
