@@ -1,0 +1,8 @@
+language: csharp
+mono:
+  - latest
+  - 4.4.2
+solution: TWOWBot.sln
+install:
+  - touch TWOWBot/logins.txt
+  - nuget restore gamebot.sln
