@@ -2,10 +2,4 @@ language: csharp
 solution: TWOWBot.sln
 before_install:
   - touch TWOWBot/logins.txt
-
-matrix:
-  include:
-    - dotnet: 1.0.1
-      mono: none
-      dist: trusty
-    - mono: 4.4.2
+mono: 4.4.2
