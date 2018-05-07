@@ -1,2 +1,2 @@
 # TWOWBot
-Discord bot made to host mini-sized TWOW games. Check the [wiki page](https://github.com/Noahkiq/TWOWBot/wiki) for more information.
+This project has been cancelled. Please check out the [python version instead.](https://github.com/HTSTEM/TWOWBot/)
